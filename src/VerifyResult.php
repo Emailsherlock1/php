@@ -14,8 +14,16 @@ final class VerifyResult
         public readonly bool $disposable,
         public readonly bool $role,
         public readonly bool $catchAll,
-        public readonly float $score,
+        public readonly ?float $score,    // null when the API reports an unknown verdict
         public readonly string $freshness, // fresh|cached_recent|cached_stale_refreshed
+        public readonly ?bool $deliverable = null,
+        // bad_syntax|no_mx|mailbox_accepts|mailbox_not_found|disposable_provider|role_address|
+        // catch_all_domain|greylisted|smtp_timeout|smtp_unreachable|verification_pending
+        public readonly ?string $reason = null,
+        public readonly ?string $mxRecord = null,
+        public readonly ?bool $freeEmail = null,
+        public readonly ?string $checkedAt = null, // ISO 8601
+        public readonly ?VerifyDomain $domain = null,
     ) {
     }
 
@@ -29,8 +37,16 @@ final class VerifyResult
             disposable: (bool) ($data['disposable'] ?? false),
             role: (bool) ($data['role'] ?? false),
             catchAll: (bool) ($data['catch_all'] ?? false),
-            score: (float) ($data['score'] ?? 0.0),
+            score: isset($data['score']) ? (float) $data['score'] : null,
             freshness: (string) ($data['freshness'] ?? ''),
+            deliverable: isset($data['deliverable']) ? (bool) $data['deliverable'] : null,
+            reason: isset($data['reason']) ? (string) $data['reason'] : null,
+            mxRecord: isset($data['mx_record']) ? (string) $data['mx_record'] : null,
+            freeEmail: isset($data['free_email']) ? (bool) $data['free_email'] : null,
+            checkedAt: isset($data['checked_at']) ? (string) $data['checked_at'] : null,
+            domain: isset($data['domain']) && is_array($data['domain'])
+                ? VerifyDomain::fromArray($data['domain'])
+                : null,
         );
     }
 }
