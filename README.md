@@ -2,7 +2,7 @@
 
 Official PHP client for the [EmailSherlock](https://emailsherlock.com) email-verification API. Verify one address or a batch over HTTPS with an API key.
 
-PHP 8.1+. Requires `ext-curl` and `ext-json`. No other dependencies.
+PHP 8.1+. The client and models are generated from the OpenAPI spec (namespace `Emailsherlock\Generated`), with a thin hand-maintained layer for the ergonomics below. Built on `guzzlehttp/guzzle`.
 
 ## Install
 
@@ -21,8 +21,8 @@ $es = new Client(getenv('ES_KEY'));
 
 $result = $es->verify->single(['email' => 'jane@acme.com']);
 
-echo $result->result; // 'valid'
-echo $result->score;  // 0.95
+echo $result->getResult(); // 'valid'
+echo $result->getScore();  // 0.95
 ```
 
 Called with `null`, `new Client(null)` reads `ES_KEY` (or
@@ -30,37 +30,73 @@ Called with `null`, `new Client(null)` reads `ES_KEY` (or
 
 ## Batch
 
-Up to 100 addresses per call. Each item is either a `VerifyResult` or a
-`BatchItemError`:
+Up to 100 addresses per call. Each entry verified, or carries a per-address
+error. Tell them apart with `VerifyResource::isVerifyResult`:
 
 ```php
-use Emailsherlock\VerifyResult;
+use Emailsherlock\VerifyResource;
 
 $batch = $es->verify->batch(['emails' => ['jane@acme.com', 'sales@acme.com']]);
 
-foreach ($batch->results as $item) {
-    if ($item instanceof VerifyResult) {
-        echo "{$item->email}: {$item->result}\n";
-    } else { // BatchItemError
-        echo "{$item->email} failed: {$item->error}\n";
+foreach ($batch->getResults() as $item) {
+    if (VerifyResource::isVerifyResult($item)) {
+        echo "{$item->getEmail()}: {$item->getResult()}\n";
+    } else {
+        echo "{$item->getEmail()} failed: {$item->getError()}\n";
     }
 }
 ```
 
+## Async jobs
+
+For large lists, submit a job and poll it. Every address runs the full pipeline
+including the SMTP probe, so the results carry definitive inbox verdicts:
+
+```php
+$job = $es->verify->submitJob(['emails' => ['a@acme.com', 'b@acme.com']]);
+while ($job->getStatus() !== 'completed') {
+    sleep(2);
+    $job = $es->verify->getJob($job->getId());
+}
+```
+
+## Account status
+
+```php
+$account = $es->credits();
+$account->getCredits()->getTotal(); // spendable credits
+$account->getSandbox();             // true on an es_test_ key
+```
+
+## Email-Guard events
+
+Record Email-Guard decision events (free, no credits). The full address is never
+sent, only the domain:
+
+```php
+$es->guard->recordEvents([
+    ['domain' => 'mailinator.com', 'verdict' => 'disposable', 'action' => 'deny',
+     'reasons' => ['disposable_provider'], 'degraded' => false, 'source' => 'local'],
+]);
+```
+
 ## The result object
 
-`VerifyResult` mirrors the API JSON:
+The result is a generated model; read fields with `get<Field>()` accessors:
 
-| property     | type   | meaning                                                         |
-|--------------|--------|-----------------------------------------------------------------|
-| `email`      | string | the address you sent                                            |
-| `result`     | string | `valid` · `invalid` · `catch_all` · `disposable` · `role` · `unknown` |
-| `mx`         | bool   | the domain has reachable MX records                             |
-| `disposable` | bool   | throwaway / temporary-mail provider                             |
-| `role`       | bool   | role address such as `info@` or `sales@`                        |
-| `catchAll`   | bool   | host accepts mail for any local part                            |
-| `score`      | float  | 0–1 confidence, higher is safer to send to                      |
-| `freshness`  | string | `fresh` · `cached_recent` · `cached_stale_refreshed`            |
+| accessor          | meaning                                                         |
+|-------------------|-----------------------------------------------------------------|
+| `getEmail()`      | the address you sent                                            |
+| `getResult()`     | `valid` · `invalid` · `catch_all` · `disposable` · `role` · `unknown` |
+| `getMx()`         | the domain has reachable MX records                             |
+| `getDisposable()` · `getRole()` · `getCatchAll()` | throwaway / role / catch-all flags |
+| `getScore()`      | 0–1 confidence, higher is safer to send to                      |
+| `getFreshness()`  | `fresh` · `cached_recent` · `cached_stale_refreshed`            |
+| `getDeliverable()`| proven via SMTP (true accepted, false provably bad, null unproven) |
+| `getReason()`     | why the pipeline decided (`mailbox_accepts`, `greylisted`, …)   |
+| `getMxRecord()` · `getFreeEmail()` · `getCheckedAt()` | primary MX host · freemail flag · ISO 8601 check time |
+| `getDomain()`     | domain-level intelligence (SPF, DKIM, DMARC, score, blacklists, …) |
+| `getDecision()`   | `getRecommendation()` (allow · deny · review) + `getReasons()`  |
 
 ## Credits and rate limits
 
@@ -81,7 +117,7 @@ Every failure throws a subclass of `Emailsherlock\Exception\EmailsherlockExcepti
 | `ForbiddenException`           | 403  | `requiredScope`                              |
 | `InsufficientCreditsException` | 402  | `creditsRequired`, `creditsRemaining`        |
 | `RateLimitException`           | 429  | `retryAfter`, `limit`, `remaining`, `reset`  |
-| `ValidationException`          | 400 / 422 | the request body was rejected           |
+| `ValidationException`          | 400 / 404 / 422 | the request was rejected, or the job was not found |
 | `ServiceUnavailableException`  | 503  | credit auto-refunded                         |
 
 Each exception exposes `->statusCode` and `->errorCode` (the API's string code,
@@ -103,6 +139,7 @@ try {
 new Client(
     apiKey: getenv('ES_KEY'),
     baseUrl: 'https://api.emailsherlock.com', // default
+    httpClient: null,                          // inject a configured GuzzleHttp\Client
     timeout: 30.0,                             // default
 );
 ```
