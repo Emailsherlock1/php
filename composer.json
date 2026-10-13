@@ -4,7 +4,7 @@
   "type": "library",
   "license": "MIT",
   "keywords": ["email", "email-verification", "email-validation", "emailsherlock", "mx", "smtp", "disposable"],
-  "homepage": "https://emailsherlock.com/api/docs",
+  "homepage": "https://www.hostsherlock.com/api/docs",
   "authors": [{ "name": "EmailSherlock" }],
   "require": {
     "php": ">=8.1",
