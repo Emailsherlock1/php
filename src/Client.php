@@ -16,7 +16,7 @@ use Emailsherlock\Http\Transport;
  */
 final class Client
 {
-    public const VERSION = '0.1.0';
+    public const VERSION = '0.2.1';
     private const DEFAULT_BASE_URL = 'https://api.emailsherlock.com';
 
     public readonly VerifyResource $verify;
