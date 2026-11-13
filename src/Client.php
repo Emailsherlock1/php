@@ -37,6 +37,14 @@ final class Client
     /** @var array{limit: ?int, remaining: ?int, reset: ?int} */
     public array $rateLimit = ['limit' => null, 'remaining' => null, 'reset' => null];
 
+    /** The tenant this client works for (X-Client-Id), or null for the key's own account. */
+    public readonly ?int $clientId;
+
+    private readonly string $apiKey;
+    private readonly string $baseUrl;
+    private readonly ?GuzzleClient $httpClient;
+    private readonly float $timeout;
+
     private readonly VerifyApi $verifyApi;
     private readonly AccountApi $accountApi;
     private readonly GuardApi $guardApi;
@@ -46,6 +54,7 @@ final class Client
         string $baseUrl = self::DEFAULT_BASE_URL,
         ?GuzzleClient $httpClient = null,
         float $timeout = 30.0,
+        ?int $clientId = null,
     ) {
         $key = $apiKey ?? getenv('ES_KEY') ?: getenv('EMAILSHERLOCK_API_KEY');
         if (!is_string($key) || $key === '') {
@@ -55,18 +64,43 @@ final class Client
             );
         }
 
+        if ($clientId !== null && $clientId <= 0) {
+            throw new EmailsherlockException(
+                'clientId must be a positive integer.',
+                errorCode: 'config_error',
+            );
+        }
+
+        $this->apiKey = $key;
+        $this->baseUrl = $baseUrl;
+        $this->httpClient = $httpClient;
+        $this->timeout = $timeout;
+        $this->clientId = $clientId;
+
         $config = new Configuration();
         $config->setHost(rtrim($baseUrl, '/'));
         $config->setApiKey('X-API-Key', $key);
         $config->setUserAgent('emailsherlock-php/' . self::VERSION);
 
         $http = $httpClient ?? new GuzzleClient(['timeout' => $timeout]);
+        if ($clientId !== null) {
+            $http = new HeaderInjectingClient($http, 'X-Client-Id', (string) $clientId);
+        }
         $this->verifyApi = new VerifyApi($http, $config);
         $this->accountApi = new AccountApi($http, $config);
         $this->guardApi = new GuardApi($http, $config);
 
         $this->verify = new VerifyResource($this, $this->verifyApi);
         $this->guard = new GuardResource($this, $this->guardApi);
+    }
+
+    /**
+     * A new client for one of your tenants: same key, base URL, http client and
+     * timeout, sending X-Client-Id. This client stays untouched.
+     */
+    public function withClientId(int $clientId): self
+    {
+        return new self($this->apiKey, $this->baseUrl, $this->httpClient, $this->timeout, $clientId);
     }
 
     /** Read the credit balance and rate-limit status. Free: consumes no credits. */

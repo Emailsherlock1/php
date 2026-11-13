@@ -8,6 +8,7 @@ on top. Most of the v0.2.0 surface carries over; see the breaking notes.
 
 ### Added
 
+- `clientId` constructor option and `$client->withClientId($id)`: a provider key sends `X-Client-Id` to work inside one of its tenants (usage, verify jobs, deliverability addresses and Guard events land there). `$client->clientId` exposes the current id.
 - `$client->credits()` reads the account status (credit buckets, rate limit, plan, sandbox flag).
 - `$client->verify->submitJob(['emails' => ...])` and `$client->verify->getJob($id)` for asynchronous verification jobs.
 - `$client->guard->recordEvents($events)` records Email-Guard decision events.
