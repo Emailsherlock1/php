@@ -133,6 +133,29 @@ try {
 }
 ```
 
+## Working for a tenant (`X-Client-Id`)
+
+If your key belongs to a provider account, you can run calls inside one of its
+tenants by naming the tenant's numeric id. Usage, verify jobs (and their
+refunds), deliverability addresses and Guard events then land in that tenant.
+
+```php
+$es = new Client(apiKey: getenv('ES_KEY'), clientId: 4711);
+
+// or derive a client for a tenant from an existing one (the original is unchanged)
+$tenant = $es->withClientId(4711);
+$tenant->verify->single(['email' => 'jane@acme.com']);
+$tenant->clientId; // 4711
+```
+
+Poll a job with the client you submitted it with: a job belongs to the tenant it
+was created in. Without `clientId` the key works in its own account. The id must
+be greater than 0, otherwise the constructor throws `config_error`. Errors:
+
+- `client_not_found` (404, `ValidationException`): the id does not exist or your key may not reach it.
+- `forbidden` (403, `ForbiddenException`): the tenant is blocked from the API.
+- `client_id_not_allowed` (400, `ValidationException`): the key is not a provider key; any `X-Client-Id` is rejected, even an empty one.
+
 ## Options
 
 ```php
@@ -141,6 +164,7 @@ new Client(
     baseUrl: 'https://api.emailsherlock.com', // default
     httpClient: null,                          // inject a configured GuzzleHttp\Client
     timeout: 30.0,                             // default
+    clientId: null,                            // provider keys: work inside this tenant
 );
 ```
 
