@@ -23,6 +23,10 @@ on top. Most of the v0.2.0 surface carries over; see the breaking notes.
 - Named exception classes (`AuthenticationException`, `InsufficientCreditsException`, `RateLimitException`, …), `creditsRemaining`, `rateLimit`, and the `ES_KEY` / `EMAILSHERLOCK_API_KEY` env fallback are unchanged. `ValidationException` now also covers `404`.
 - The wire stays snake_case (no field renaming).
 
+## 0.2.1
+
+Documentation and package metadata links now point at hostsherlock.com. The API host `api.emailsherlock.com` is unchanged. `Client::VERSION` (and so the User-Agent) reports the right version again; 0.2.0 still said 0.1.0.
+
 ## 0.2.0
 
 Verify response v2 fields on the hand-written client. `VerifyResult` gains `deliverable`, `reason`, `mxRecord`, `freeEmail`, `checkedAt` and a `domain` object (`VerifyDomain`: types, trust score, SPF/DKIM/DMARC and other mail-security signals). The new fields are `null` on responses from API servers that do not send them yet.
