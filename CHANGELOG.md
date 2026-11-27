@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `clientId` constructor option and `$client->withClientId($id)`: a provider key sends `X-Client-Id` to work inside one of its tenants (usage, verify jobs, deliverability addresses and Guard events land there). `$client->clientId` exposes the current id.
+
 ## 0.3.0
 
 The client and models are now generated from the EmailSherlock OpenAPI spec
@@ -8,7 +14,6 @@ on top. Most of the v0.2.0 surface carries over; see the breaking notes.
 
 ### Added
 
-- `clientId` constructor option and `$client->withClientId($id)`: a provider key sends `X-Client-Id` to work inside one of its tenants (usage, verify jobs, deliverability addresses and Guard events land there). `$client->clientId` exposes the current id.
 - `$client->credits()` reads the account status (credit buckets, rate limit, plan, sandbox flag).
 - `$client->verify->submitJob(['emails' => ...])` and `$client->verify->getJob($id)` for asynchronous verification jobs.
 - `$client->guard->recordEvents($events)` records Email-Guard decision events.
@@ -23,6 +28,10 @@ on top. Most of the v0.2.0 surface carries over; see the breaking notes.
 - Constructor: the `transport:` parameter is replaced by `httpClient:` (inject a configured `GuzzleHttp\Client`).
 - Named exception classes (`AuthenticationException`, `InsufficientCreditsException`, `RateLimitException`, …), `creditsRemaining`, `rateLimit`, and the `ES_KEY` / `EMAILSHERLOCK_API_KEY` env fallback are unchanged. `ValidationException` now also covers `404`.
 - The wire stays snake_case (no field renaming).
+
+## 0.2.1
+
+Documentation and package metadata links now point at hostsherlock.com. The API host `api.emailsherlock.com` is unchanged. `Client::VERSION` (and so the User-Agent) reports the right version again; 0.2.0 still said 0.1.0.
 
 ## 0.2.0
 

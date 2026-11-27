@@ -1,6 +1,6 @@
 # emailsherlock/client
 
-Official PHP client for the [EmailSherlock](https://emailsherlock.com) email-verification API. Verify one address or a batch over HTTPS with an API key. Get an API key at https://emailsherlock.com/api. Want to try a single address by hand first? The free [email verification](https://emailsherlock.com/verify) tool runs the same checks in the browser.
+Official PHP client for the [EmailSherlock](https://www.hostsherlock.com) email-verification API. Verify one address or a batch over HTTPS with an API key. Get an API key at https://www.hostsherlock.com/api. Want to try a single address by hand first? The free [email verification](https://www.hostsherlock.com/verify) tool runs the same checks in the browser.
 
 PHP 8.1+. The client and models are generated from the OpenAPI spec (namespace `Emailsherlock\Generated`), with a thin hand-maintained layer for the ergonomics below. Built on `guzzlehttp/guzzle`.
 
@@ -170,4 +170,4 @@ new Client(
 
 ## License
 
-MIT. Full API reference: https://emailsherlock.com/api/docs
+MIT. Full API reference: https://www.hostsherlock.com/api/docs
