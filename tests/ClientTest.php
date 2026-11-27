@@ -9,6 +9,7 @@ use Emailsherlock\Exception\AuthenticationException;
 use Emailsherlock\Exception\EmailsherlockException;
 use Emailsherlock\Exception\InsufficientCreditsException;
 use Emailsherlock\Exception\RateLimitException;
+use Emailsherlock\Generated\Model\VerifyDomainResponse;
 use Emailsherlock\Generated\Model\VerifyResultResponse;
 use Emailsherlock\VerifyResource;
 use GuzzleHttp\Client as GuzzleClient;
@@ -194,6 +195,20 @@ final class ClientTest extends TestCase
         self::assertSame(VerifyResultResponse::REASON_UNKNOWN_DEFAULT_OPEN_API, $result->getReason());
         self::assertSame('jane@acme.com', $result->getEmail());
         self::assertSame(0.95, $result->getScore());
+    }
+
+    public function testListOfEnumValuesKeepsKnownEntriesAndMapsTheNewOne(): void
+    {
+        // EM-4987: the stock generator template left list-of-enum setters
+        // throwing; sdk-gen's model_generic.mustache override maps the entry.
+        $client = $this->client(200, ['domain' => ['types' => ['freemail', 'a_type_added_later']]] + self::WIRE);
+        $result = $client->verify->single(['email' => 'jane@acme.com']);
+
+        self::assertSame(
+            [VerifyDomainResponse::TYPES_FREEMAIL, VerifyDomainResponse::TYPES_UNKNOWN_DEFAULT_OPEN_API],
+            $result->getDomain()->getTypes(),
+        );
+        self::assertSame('valid', $result->getResult());
     }
 
     public function testRateLimitedCarriesRetryAfter(): void

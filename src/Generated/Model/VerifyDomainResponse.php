@@ -542,11 +542,9 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getTypesAllowableValues();
         if (!is_null($types) && array_diff($types, $allowedValues)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value for 'types', must be one of '%s'",
-                    implode("', '", $allowedValues)
-                )
+            $types = array_map(
+                static fn ($value) => in_array($value, $allowedValues, true) ? $value : self::TYPES_UNKNOWN_DEFAULT_OPEN_API,
+                $types
             );
         }
         $this->container['types'] = $types;
