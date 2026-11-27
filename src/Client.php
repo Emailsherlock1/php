@@ -6,7 +6,11 @@ namespace Emailsherlock;
 
 use Emailsherlock\Exception\EmailsherlockException;
 use Emailsherlock\Generated\Api\AccountApi;
+use Emailsherlock\Generated\Api\DeliverabilityApi;
+use Emailsherlock\Generated\Api\DomainReportsApi;
+use Emailsherlock\Generated\Api\DomainSetupApi;
 use Emailsherlock\Generated\Api\GuardApi;
+use Emailsherlock\Generated\Api\ImpersonationApi;
 use Emailsherlock\Generated\Api\VerifyApi;
 use Emailsherlock\Generated\ApiException;
 use Emailsherlock\Generated\Configuration;
@@ -14,22 +18,28 @@ use Emailsherlock\Generated\Model\AccountStatusResponse;
 use GuzzleHttp\Client as GuzzleClient;
 
 /**
- * Client for the EmailSherlock verify API.
+ * Client for the EmailSherlock API.
  *
  * Thin sugar over the generated raw client in Emailsherlock\Generated: named
  * exception classes, creditsRemaining / rateLimit accessors, an env-var key
- * fallback, and the $verify / $guard resources.
+ * fallback, and one resource per endpoint group ($verify, $guard,
+ * $deliverability, $dmarc, $tlsRpt, $domains, $impersonation).
  *
  * The API key is read from the constructor or, if null, from the ES_KEY /
  * EMAILSHERLOCK_API_KEY environment variables.
  */
 final class Client
 {
-    public const VERSION = '0.3.0';
+    public const VERSION = '0.4.0';
     private const DEFAULT_BASE_URL = 'https://api.emailsherlock.com';
 
     public readonly VerifyResource $verify;
     public readonly GuardResource $guard;
+    public readonly DeliverabilityResource $deliverability;
+    public readonly DmarcResource $dmarc;
+    public readonly TlsRptResource $tlsRpt;
+    public readonly DomainsResource $domains;
+    public readonly ImpersonationResource $impersonation;
 
     /** Credits left after the most recent request (X-Credits-Remaining). */
     public ?float $creditsRemaining = null;
@@ -92,6 +102,13 @@ final class Client
 
         $this->verify = new VerifyResource($this, $this->verifyApi);
         $this->guard = new GuardResource($this, $this->guardApi);
+
+        $reportsApi = new DomainReportsApi($http, $config);
+        $this->deliverability = new DeliverabilityResource($this, new DeliverabilityApi($http, $config));
+        $this->dmarc = new DmarcResource($this, new DomainSetupApi($http, $config), $reportsApi);
+        $this->tlsRpt = new TlsRptResource($this, $reportsApi);
+        $this->domains = new DomainsResource($this, $reportsApi);
+        $this->impersonation = new ImpersonationResource($this, new ImpersonationApi($http, $config));
     }
 
     /**

@@ -1,10 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
+
+Five new resources for the endpoint groups added to the spec. Each goes through the same layer as `verify` and `guard`: named exceptions, `creditsRemaining` / `rateLimit`, the env-var key fallback and `X-Client-Id`. Only `impersonation->analyze()` costs credits; the other new calls are free.
 
 ### Added
 
+- `$client->deliverability`: `listAddresses()`, `latest($id)` (the pre-send gate), `listChecks($id, ['limit' => …, 'offset' => …])`, `getCheck($id)`, `setWebhook($id, $url)` (returns the signing secret once), `deleteWebhook($id)`.
+- `$client->dmarc`: `start($domain)`, `check($domain)`, `summary($domain, ['range' => 7|30])`, `reports($domain, [...])` (from, to, reporter, limit, offset), `sources($domain, [...])` (range, result, check, limit, offset).
+- `$client->tlsRpt`: `reports($domain, [...])` (range, limit, offset).
+- `$client->domains`: `changes($domain, [...])` (limit, offset), `nextSteps($domain)`.
+- `$client->impersonation`: `analyze($request)` scores a sender's header fields against the identities you protect.
 - `clientId` constructor option and `$client->withClientId($id)`: a provider key sends `X-Client-Id` to work inside one of its tenants (usage, verify jobs, deliverability addresses and Guard events land there). `$client->clientId` exposes the current id.
+
+### Changed
+
+- The generated doc comments now point at https://www.hostsherlock.com/api/docs.
 
 ## 0.3.0
 
