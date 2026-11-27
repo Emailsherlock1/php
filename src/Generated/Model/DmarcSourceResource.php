@@ -314,13 +314,16 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
 
     public const KIND_KNOWN = 'known';
     public const KIND_UNKNOWN = 'unknown';
+    public const KIND_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const STATUS_LEGIT = 'legit';
     public const STATUS_FIX = 'fix';
     public const STATUS_SUSP = 'susp';
+    public const STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const SECTION_FIX = 'fix';
     public const SECTION_SUSP = 'susp';
     public const SECTION_LEGIT = 'legit';
     public const SECTION_FORWARDED = 'forwarded';
+    public const SECTION_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -332,6 +335,7 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
         return [
             self::KIND_KNOWN,
             self::KIND_UNKNOWN,
+            self::KIND_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -346,6 +350,7 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
             self::STATUS_LEGIT,
             self::STATUS_FIX,
             self::STATUS_SUSP,
+            self::STATUS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -361,6 +366,7 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
             self::SECTION_SUSP,
             self::SECTION_LEGIT,
             self::SECTION_FORWARDED,
+            self::SECTION_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -561,13 +567,7 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
         }
         $allowedValues = $this->getKindAllowableValues();
         if (!in_array($kind, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'kind', must be one of '%s'",
-                    $kind,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $kind = self::KIND_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['kind'] = $kind;
 
@@ -598,13 +598,7 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
         }
         $allowedValues = $this->getStatusAllowableValues();
         if (!in_array($status, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'status', must be one of '%s'",
-                    $status,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $status = self::STATUS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['status'] = $status;
 
@@ -635,13 +629,7 @@ class DmarcSourceResource implements ModelInterface, ArrayAccess, \JsonSerializa
         }
         $allowedValues = $this->getSectionAllowableValues();
         if (!in_array($section, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'section', must be one of '%s'",
-                    $section,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $section = self::SECTION_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['section'] = $section;
 

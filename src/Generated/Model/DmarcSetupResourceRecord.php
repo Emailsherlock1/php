@@ -260,9 +260,11 @@ class DmarcSetupResourceRecord implements ModelInterface, ArrayAccess, \JsonSeri
     }
 
     public const TYPE_TXT = 'TXT';
+    public const TYPE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const ACTION_CREATE = 'create';
     public const ACTION_REPLACE = 'replace';
     public const ACTION_ADD_ADDRESS = 'add_address';
+    public const ACTION_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -273,6 +275,7 @@ class DmarcSetupResourceRecord implements ModelInterface, ArrayAccess, \JsonSeri
     {
         return [
             self::TYPE_TXT,
+            self::TYPE_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -287,6 +290,7 @@ class DmarcSetupResourceRecord implements ModelInterface, ArrayAccess, \JsonSeri
             self::ACTION_CREATE,
             self::ACTION_REPLACE,
             self::ACTION_ADD_ADDRESS,
+            self::ACTION_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -424,13 +428,7 @@ class DmarcSetupResourceRecord implements ModelInterface, ArrayAccess, \JsonSeri
         }
         $allowedValues = $this->getTypeAllowableValues();
         if (!in_array($type, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'type', must be one of '%s'",
-                    $type,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $type = self::TYPE_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['type'] = $type;
 
@@ -488,13 +486,7 @@ class DmarcSetupResourceRecord implements ModelInterface, ArrayAccess, \JsonSeri
         }
         $allowedValues = $this->getActionAllowableValues();
         if (!in_array($action, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'action', must be one of '%s'",
-                    $action,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $action = self::ACTION_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['action'] = $action;
 

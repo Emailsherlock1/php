@@ -237,6 +237,7 @@ class VerifyDecisionResponse implements ModelInterface, ArrayAccess, \JsonSerial
     public const RECOMMENDATION_ALLOW = 'allow';
     public const RECOMMENDATION_DENY = 'deny';
     public const RECOMMENDATION_REVIEW = 'review';
+    public const RECOMMENDATION_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -249,6 +250,7 @@ class VerifyDecisionResponse implements ModelInterface, ArrayAccess, \JsonSerial
             self::RECOMMENDATION_ALLOW,
             self::RECOMMENDATION_DENY,
             self::RECOMMENDATION_REVIEW,
+            self::RECOMMENDATION_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -352,13 +354,7 @@ class VerifyDecisionResponse implements ModelInterface, ArrayAccess, \JsonSerial
         }
         $allowedValues = $this->getRecommendationAllowableValues();
         if (!in_array($recommendation, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'recommendation', must be one of '%s'",
-                    $recommendation,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $recommendation = self::RECOMMENDATION_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['recommendation'] = $recommendation;
 

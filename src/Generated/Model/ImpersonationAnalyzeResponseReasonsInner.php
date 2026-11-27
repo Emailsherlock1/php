@@ -252,6 +252,7 @@ class ImpersonationAnalyzeResponseReasonsInner implements ModelInterface, ArrayA
     public const REASON_DOMAIN_BLOCKED = 'domain_blocked';
     public const REASON_DOMAIN_LISTED = 'domain_listed';
     public const REASON_REPLY_ELSEWHERE = 'reply_elsewhere';
+    public const REASON_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -273,6 +274,7 @@ class ImpersonationAnalyzeResponseReasonsInner implements ModelInterface, ArrayA
             self::REASON_DOMAIN_BLOCKED,
             self::REASON_DOMAIN_LISTED,
             self::REASON_REPLY_ELSEWHERE,
+            self::REASON_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -371,13 +373,7 @@ class ImpersonationAnalyzeResponseReasonsInner implements ModelInterface, ArrayA
         }
         $allowedValues = $this->getReasonAllowableValues();
         if (!in_array($reason, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'reason', must be one of '%s'",
-                    $reason,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $reason = self::REASON_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['reason'] = $reason;
 

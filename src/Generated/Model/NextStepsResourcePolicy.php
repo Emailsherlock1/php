@@ -237,9 +237,11 @@ class NextStepsResourcePolicy implements ModelInterface, ArrayAccess, \JsonSeria
 
     public const TAG_P = 'p';
     public const TAG_SP = 'sp';
+    public const TAG_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const VALUE_NONE = 'none';
     public const VALUE_QUARANTINE = 'quarantine';
     public const VALUE_REJECT = 'reject';
+    public const VALUE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -251,6 +253,7 @@ class NextStepsResourcePolicy implements ModelInterface, ArrayAccess, \JsonSeria
         return [
             self::TAG_P,
             self::TAG_SP,
+            self::TAG_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -265,6 +268,7 @@ class NextStepsResourcePolicy implements ModelInterface, ArrayAccess, \JsonSeria
             self::VALUE_NONE,
             self::VALUE_QUARANTINE,
             self::VALUE_REJECT,
+            self::VALUE_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -371,13 +375,7 @@ class NextStepsResourcePolicy implements ModelInterface, ArrayAccess, \JsonSeria
         }
         $allowedValues = $this->getTagAllowableValues();
         if (!in_array($tag, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'tag', must be one of '%s'",
-                    $tag,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $tag = self::TAG_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['tag'] = $tag;
 
@@ -415,13 +413,7 @@ class NextStepsResourcePolicy implements ModelInterface, ArrayAccess, \JsonSeria
         }
         $allowedValues = $this->getValueAllowableValues();
         if (!is_null($value) && !in_array($value, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'value', must be one of '%s'",
-                    $value,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $value = self::VALUE_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['value'] = $value;
 

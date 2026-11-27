@@ -290,6 +290,7 @@ class NextStepsResourceUnalignedSourcesInner implements ModelInterface, ArrayAcc
     public const REASON_SPF_FOREIGN = 'spf_foreign';
     public const REASON_UNAUTHENTICATED = 'unauthenticated';
     public const REASON_UNEXPLAINED = 'unexplained';
+    public const REASON_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -307,6 +308,7 @@ class NextStepsResourceUnalignedSourcesInner implements ModelInterface, ArrayAcc
             self::REASON_SPF_FOREIGN,
             self::REASON_UNAUTHENTICATED,
             self::REASON_UNEXPLAINED,
+            self::REASON_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -554,13 +556,7 @@ class NextStepsResourceUnalignedSourcesInner implements ModelInterface, ArrayAcc
         }
         $allowedValues = $this->getReasonAllowableValues();
         if (!in_array($reason, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'reason', must be one of '%s'",
-                    $reason,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $reason = self::REASON_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['reason'] = $reason;
 

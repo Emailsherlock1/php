@@ -262,6 +262,7 @@ class DmarcSetupResource implements ModelInterface, ArrayAccess, \JsonSerializab
     public const STATUS_NOT_FOUND = 'not_found';
     public const STATUS_WRONG_RECORD = 'wrong_record';
     public const STATUS_UNKNOWN = 'unknown';
+    public const STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -275,6 +276,7 @@ class DmarcSetupResource implements ModelInterface, ArrayAccess, \JsonSerializab
             self::STATUS_NOT_FOUND,
             self::STATUS_WRONG_RECORD,
             self::STATUS_UNKNOWN,
+            self::STATUS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -415,13 +417,7 @@ class DmarcSetupResource implements ModelInterface, ArrayAccess, \JsonSerializab
         }
         $allowedValues = $this->getStatusAllowableValues();
         if (!in_array($status, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'status', must be one of '%s'",
-                    $status,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $status = self::STATUS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['status'] = $status;
 

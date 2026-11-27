@@ -255,6 +255,7 @@ class NextStepsResourceLadder implements ModelInterface, ArrayAccess, \JsonSeria
 
     public const NEXT_POLICY_QUARANTINE = 'quarantine';
     public const NEXT_POLICY_REJECT = 'reject';
+    public const NEXT_POLICY_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -266,6 +267,7 @@ class NextStepsResourceLadder implements ModelInterface, ArrayAccess, \JsonSeria
         return [
             self::NEXT_POLICY_QUARANTINE,
             self::NEXT_POLICY_REJECT,
+            self::NEXT_POLICY_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -420,13 +422,7 @@ class NextStepsResourceLadder implements ModelInterface, ArrayAccess, \JsonSeria
         }
         $allowedValues = $this->getNextPolicyAllowableValues();
         if (!in_array($next_policy, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'next_policy', must be one of '%s'",
-                    $next_policy,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $next_policy = self::NEXT_POLICY_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['next_policy'] = $next_policy;
 

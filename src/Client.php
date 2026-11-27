@@ -21,8 +21,8 @@ use GuzzleHttp\Client as GuzzleClient;
  * Client for the EmailSherlock API.
  *
  * Thin sugar over the generated raw client in Emailsherlock\Generated: named
- * exception classes, creditsRemaining / rateLimit accessors, an env-var key
- * fallback, and one resource per endpoint group ($verify, $guard,
+ * exception classes, probeCreditsRemaining / validationsRemaining / rateLimit
+ * accessors, an env-var key fallback, and one resource per endpoint group ($verify, $guard,
  * $deliverability, $dmarc, $tlsRpt, $domains, $impersonation).
  *
  * The API key is read from the constructor or, if null, from the ES_KEY /
@@ -30,7 +30,7 @@ use GuzzleHttp\Client as GuzzleClient;
  */
 final class Client
 {
-    public const VERSION = '0.4.0';
+    public const VERSION = '0.5.0';
     private const DEFAULT_BASE_URL = 'https://api.emailsherlock.com';
 
     public readonly VerifyResource $verify;
@@ -41,7 +41,28 @@ final class Client
     public readonly DomainsResource $domains;
     public readonly ImpersonationResource $impersonation;
 
-    /** Credits left after the most recent request (X-Credits-Remaining). */
+    /**
+     * Probe credits left, as the most recent response that carried the balance
+     * reported it (X-Probe-Credits-Remaining, or its older name
+     * X-Credits-Remaining). Probe credits pay for deep verify of catch-all and
+     * unknown addresses. Null until a response carries the header.
+     */
+    public ?float $probeCreditsRemaining = null;
+
+    /**
+     * Free standard verifies left this month, as the most recent response that
+     * carried the balance reported it (X-Validations-Remaining, or its older
+     * name X-Verify-Free-Remaining). The API omits the header on a paid plan,
+     * where standard verify is unlimited, so it stays null there.
+     */
+    public ?int $validationsRemaining = null;
+
+    /**
+     * Same value as $probeCreditsRemaining, under the name this SDK used before
+     * the API split the two balances.
+     *
+     * @deprecated since 0.5.0, read $probeCreditsRemaining or $validationsRemaining.
+     */
     public ?float $creditsRemaining = null;
 
     /** @var array{limit: ?int, remaining: ?int, reset: ?int} */
@@ -163,9 +184,14 @@ final class Client
             return null;
         };
 
-        $credits = $get('X-Credits-Remaining');
-        if ($credits !== null && is_numeric($credits)) {
-            $this->creditsRemaining = (float) $credits;
+        $probe = $get('X-Probe-Credits-Remaining') ?? $get('X-Credits-Remaining');
+        if ($probe !== null && is_numeric($probe)) {
+            $this->probeCreditsRemaining = (float) $probe;
+            $this->creditsRemaining = $this->probeCreditsRemaining;
+        }
+        $validations = $get('X-Validations-Remaining') ?? $get('X-Verify-Free-Remaining');
+        if ($validations !== null && is_numeric($validations)) {
+            $this->validationsRemaining = (int) $validations;
         }
         if ($get('X-RateLimit-Limit') !== null) {
             $this->rateLimit = [

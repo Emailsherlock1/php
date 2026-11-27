@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0
+
+### Added
+
+- `$client->probeCreditsRemaining` and `$client->validationsRemaining`: the two balances the API reports, read from `X-Probe-Credits-Remaining` and `X-Validations-Remaining` (falling back to the older header names). `validationsRemaining` stays `null` on a paid plan, where standard verify is unlimited.
+
+### Changed
+
+- An enum value the SDK does not know no longer throws `InvalidArgumentException` while the response is read. The field reads `'unknown_default_open_api'` (the `…_UNKNOWN_DEFAULT_OPEN_API` constant on each model). In a list of enum values (`getTypes()` on the verify domain block) only the new entry reads that way. The rest of the response arrives. The same setter runs when you call one on a generated request model yourself (`setMode()` on `VerifySingleRequest`): a value it does not list is no longer refused locally and goes out as `'unknown_default_open_api'`, which the API runs as standard mode.
+- `InsufficientCreditsException::$creditsRemaining` reads `X-Probe-Credits-Remaining` first.
+
+### Deprecated
+
+- `$client->creditsRemaining`: holds the same value as `probeCreditsRemaining`.
+
 ## 0.4.0
 
 Five new resources for the endpoint groups added to the spec. Each goes through the same layer as `verify` and `guard`: named exceptions, `creditsRemaining` / `rateLimit`, the env-var key fallback and `X-Client-Id`. Only `impersonation->analyze()` costs credits; the other new calls are free.
