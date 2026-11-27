@@ -80,6 +80,82 @@ $es->guard->recordEvents([
 ]);
 ```
 
+## Deliverability checks
+
+Read the check addresses of your account and their verdicts. `latest()` is the
+pre-send gate: the last cached verdict, no live probe. Free, no credits.
+
+```php
+$addresses = $es->deliverability->listAddresses()->getAddresses();
+$gate = $es->deliverability->latest($addresses[0]->getId());
+$gate->getVerdict()?->getVerdictBand(); // 'inbox_ready' · 'at_risk' · 'likely_filtered'
+
+$hook = $es->deliverability->setWebhook(45, 'https://hooks.example.com/emailsherlock');
+$hook->getWebhook()->getSecret(); // shown once, store it now
+```
+
+`listChecks($id, ['limit' => 20])`, `getCheck($checkId)` and
+`deleteWebhook($id)` cover the rest.
+
+## DMARC
+
+`start()` watches the domain and tells you the one DNS change that routes its
+DMARC reports to your account; `check()` confirms the record once it is live.
+The reads (`summary`, `reports`, `sources`) need your account's report address
+in the domain's DMARC record. Watching a domain does not unlock its reports.
+Free, no credits.
+
+```php
+$setup = $es->dmarc->start('acme.com');
+$record = $setup->getRecord(); // null when the lookup could not run
+$record?->getAction();          // 'create' · 'replace' · 'add_address'
+$record?->getValue();           // what to publish at $record->getHost()
+
+$summary = $es->dmarc->summary('acme.com', ['range' => 7]);
+echo $summary->getAlignedPct();
+
+$failing = $es->dmarc->sources('acme.com', ['result' => 'fail', 'check' => 'spf']);
+$reports = $es->dmarc->reports('acme.com', ['from' => '2026-11-01', 'limit' => 20]);
+```
+
+## TLS-RPT
+
+Needs your account's report address in the domain's TLS-RPT record. Free, no
+credits.
+
+```php
+$page = $es->tlsRpt->reports('acme.com', ['range' => 30]);
+foreach ($page->getReports() as $report) { /* ... */ }
+```
+
+## Domains
+
+The change timeline of a domain you watch, and the next DMARC policy step.
+`nextSteps()` needs your account's report address in the domain's DMARC record.
+Free, no credits.
+
+```php
+$changes = $es->domains->changes('acme.com', ['limit' => 20])->getChanges();
+
+$next = $es->domains->nextSteps('acme.com');
+$next->getLadder()->getNextPolicy();         // 'quarantine' or 'reject'
+$next->getLadder()->getReadyForNextPolicy(); // true while reports arrive and no sender fails DMARC
+```
+
+## Impersonation
+
+Score a sender's header fields against the people and organisations you protect.
+No subject or body is sent, and nothing is stored. Costs credits.
+
+```php
+$verdict = $es->impersonation->analyze([
+    'from' => 'thomas.berger.ceo@gmail.com',
+    'display_name' => 'Thomas Berger',
+    'protected' => [['name' => 'Thomas Berger', 'domains' => ['acme.de']]],
+]);
+echo $verdict->getRisk(); // 'none' · 'low' · 'medium' · 'high'
+```
+
 ## The result object
 
 The result is a generated model; read fields with `get<Field>()` accessors:
@@ -117,11 +193,13 @@ Every failure throws a subclass of `Emailsherlock\Exception\EmailsherlockExcepti
 | `ForbiddenException`           | 403  | `requiredScope`                              |
 | `InsufficientCreditsException` | 402  | `creditsRequired`, `creditsRemaining`        |
 | `RateLimitException`           | 429  | `retryAfter`, `limit`, `remaining`, `reset`  |
-| `ValidationException`          | 400 / 404 / 422 | the request was rejected, or the job was not found |
+| `ValidationException`          | 400 / 404 / 422 | the request was rejected, or what it names was not found |
 | `ServiceUnavailableException`  | 503  | credit auto-refunded                         |
 
 Each exception exposes `->statusCode` and `->errorCode` (the API's string code,
 e.g. `rate_limit_exceeded`).
+Any other status (for example `409` from `dmarc->start()`, or `500`) throws the
+base `EmailsherlockException`.
 
 ```php
 use Emailsherlock\Exception\RateLimitException;
