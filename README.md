@@ -190,10 +190,14 @@ $es->rateLimit;              // ['limit' => 60, 'remaining' => 59, 'reset' => 17
 
 ## Enum values this version does not know
 
-When the API returns an enum value that is newer than your SDK version, the field
-reads `'unknown_default_open_api'` (each model has it as a
+When the API returns a value for a single-value enum field that is newer than your
+SDK version, the field reads `'unknown_default_open_api'` (each model has it as a
 `…_UNKNOWN_DEFAULT_OPEN_API` constant) and the rest of the response arrives as
 usual. Update the SDK to read the new value.
+
+A field that holds a list of enum values (`getTypes()` on the verify domain block)
+is still checked strictly: a value newer than your SDK version throws
+`InvalidArgumentException` while the response is read.
 
 ## Errors
 

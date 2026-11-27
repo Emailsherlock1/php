@@ -8,7 +8,8 @@
 
 ### Changed
 
-- An enum value the SDK does not know no longer throws `InvalidArgumentException` while the response is read. The field reads `'unknown_default_open_api'` (the `…_UNKNOWN_DEFAULT_OPEN_API` constant on each model), and the rest of the response arrives. The same setter runs when you call one on a generated request model yourself (`setMode()` on `VerifySingleRequest`): a value it does not list is no longer refused locally and goes out as `'unknown_default_open_api'`.
+- A single-value enum field (`status`, `verdict_band`, `reason` and the like) no longer throws `InvalidArgumentException` on a value the SDK does not know while the response is read. The field reads `'unknown_default_open_api'` (the `…_UNKNOWN_DEFAULT_OPEN_API` constant on each model), and the rest of the response arrives. The same setter runs when you call one on a generated request model yourself (`setMode()` on `VerifySingleRequest`): a value it does not list is no longer refused locally and goes out as `'unknown_default_open_api'`.
+- Still strict: a list of enum values. The generator leaves those setters unchanged, so a new value in `VerifyDomainResponse` `types` still throws `InvalidArgumentException` while the response is read.
 - `InsufficientCreditsException::$creditsRemaining` reads `X-Probe-Credits-Remaining` first.
 
 ### Deprecated
