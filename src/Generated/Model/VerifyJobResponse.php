@@ -266,6 +266,7 @@ class VerifyJobResponse implements ModelInterface, ArrayAccess, \JsonSerializabl
 
     public const STATUS_PROCESSING = 'processing';
     public const STATUS_COMPLETED = 'completed';
+    public const STATUS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -277,6 +278,7 @@ class VerifyJobResponse implements ModelInterface, ArrayAccess, \JsonSerializabl
         return [
             self::STATUS_PROCESSING,
             self::STATUS_COMPLETED,
+            self::STATUS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -424,13 +426,7 @@ class VerifyJobResponse implements ModelInterface, ArrayAccess, \JsonSerializabl
         }
         $allowedValues = $this->getStatusAllowableValues();
         if (!in_array($status, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'status', must be one of '%s'",
-                    $status,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $status = self::STATUS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['status'] = $status;
 

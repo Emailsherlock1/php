@@ -366,6 +366,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
     public const RESULT_DISPOSABLE = 'disposable';
     public const RESULT_ROLE = 'role';
     public const RESULT_UNKNOWN = 'unknown';
+    public const RESULT_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const REASON_BAD_SYNTAX = 'bad_syntax';
     public const REASON_NO_MX = 'no_mx';
     public const REASON_MAILBOX_ACCEPTS = 'mailbox_accepts';
@@ -383,17 +384,21 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
     public const REASON_VERIFICATION_PENDING = 'verification_pending';
     public const REASON_BLOCKED_DOMAIN = 'blocked_domain';
     public const REASON_SPAM_TRAP = 'spam_trap';
+    public const REASON_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const SPAM_TRAP_TYPE_KNOWN_TRAP_DOMAIN = 'known_trap_domain';
     public const SPAM_TRAP_TYPE_REPUTATION_HEURISTIC = 'reputation_heuristic';
+    public const SPAM_TRAP_TYPE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const SMTP_DIAGNOSIS_ACCEPTED = 'accepted';
     public const SMTP_DIAGNOSIS_MAILBOX_FULL = 'mailbox_full';
     public const SMTP_DIAGNOSIS_MAILBOX_DISABLED = 'mailbox_disabled';
     public const SMTP_DIAGNOSIS_MAILBOX_NOT_FOUND = 'mailbox_not_found';
     public const SMTP_DIAGNOSIS_GREYLIST_DEFERRED = 'greylist_deferred';
     public const SMTP_DIAGNOSIS_POLICY_BLOCK = 'policy_block';
+    public const SMTP_DIAGNOSIS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const FRESHNESS_FRESH = 'fresh';
     public const FRESHNESS_CACHED_RECENT = 'cached_recent';
     public const FRESHNESS_CACHED_STALE_REFRESHED = 'cached_stale_refreshed';
+    public const FRESHNESS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -409,6 +414,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::RESULT_DISPOSABLE,
             self::RESULT_ROLE,
             self::RESULT_UNKNOWN,
+            self::RESULT_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -437,6 +443,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::REASON_VERIFICATION_PENDING,
             self::REASON_BLOCKED_DOMAIN,
             self::REASON_SPAM_TRAP,
+            self::REASON_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -450,6 +457,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         return [
             self::SPAM_TRAP_TYPE_KNOWN_TRAP_DOMAIN,
             self::SPAM_TRAP_TYPE_REPUTATION_HEURISTIC,
+            self::SPAM_TRAP_TYPE_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -467,6 +475,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::SMTP_DIAGNOSIS_MAILBOX_NOT_FOUND,
             self::SMTP_DIAGNOSIS_GREYLIST_DEFERRED,
             self::SMTP_DIAGNOSIS_POLICY_BLOCK,
+            self::SMTP_DIAGNOSIS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -481,6 +490,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::FRESHNESS_FRESH,
             self::FRESHNESS_CACHED_RECENT,
             self::FRESHNESS_CACHED_STALE_REFRESHED,
+            self::FRESHNESS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -695,13 +705,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getResultAllowableValues();
         if (!in_array($result, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'result', must be one of '%s'",
-                    $result,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $result = self::RESULT_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['result'] = $result;
 
@@ -773,13 +777,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getReasonAllowableValues();
         if (!is_null($reason) && !in_array($reason, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'reason', must be one of '%s'",
-                    $reason,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $reason = self::REASON_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['reason'] = $reason;
 
@@ -1108,13 +1106,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getSpamTrapTypeAllowableValues();
         if (!is_null($spam_trap_type) && !in_array($spam_trap_type, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'spam_trap_type', must be one of '%s'",
-                    $spam_trap_type,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $spam_trap_type = self::SPAM_TRAP_TYPE_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['spam_trap_type'] = $spam_trap_type;
 
@@ -1186,13 +1178,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getSmtpDiagnosisAllowableValues();
         if (!is_null($smtp_diagnosis) && !in_array($smtp_diagnosis, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'smtp_diagnosis', must be one of '%s'",
-                    $smtp_diagnosis,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $smtp_diagnosis = self::SMTP_DIAGNOSIS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['smtp_diagnosis'] = $smtp_diagnosis;
 
@@ -1257,13 +1243,7 @@ class VerifyResultResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getFreshnessAllowableValues();
         if (!in_array($freshness, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'freshness', must be one of '%s'",
-                    $freshness,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $freshness = self::FRESHNESS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['freshness'] = $freshness;
 

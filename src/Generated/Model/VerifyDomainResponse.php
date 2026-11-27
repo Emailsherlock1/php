@@ -327,12 +327,15 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
     public const TYPES__PUBLIC = 'public';
     public const TYPES_ISP = 'isp';
     public const TYPES_RELAY = 'relay';
+    public const TYPES_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const DMARC_POLICY_NONE = 'none';
     public const DMARC_POLICY_QUARANTINE = 'quarantine';
     public const DMARC_POLICY_REJECT = 'reject';
+    public const DMARC_POLICY_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const DNSSEC_SECURE = 'secure';
     public const DNSSEC_INSECURE = 'insecure';
     public const DNSSEC_BOGUS = 'bogus';
+    public const DNSSEC_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -351,6 +354,7 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::TYPES__PUBLIC,
             self::TYPES_ISP,
             self::TYPES_RELAY,
+            self::TYPES_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -365,6 +369,7 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::DMARC_POLICY_NONE,
             self::DMARC_POLICY_QUARANTINE,
             self::DMARC_POLICY_REJECT,
+            self::DMARC_POLICY_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -379,6 +384,7 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
             self::DNSSEC_SECURE,
             self::DNSSEC_INSECURE,
             self::DNSSEC_BOGUS,
+            self::DNSSEC_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -715,13 +721,7 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getDmarcPolicyAllowableValues();
         if (!is_null($dmarc_policy) && !in_array($dmarc_policy, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'dmarc_policy', must be one of '%s'",
-                    $dmarc_policy,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $dmarc_policy = self::DMARC_POLICY_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['dmarc_policy'] = $dmarc_policy;
 
@@ -929,13 +929,7 @@ class VerifyDomainResponse implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getDnssecAllowableValues();
         if (!is_null($dnssec) && !in_array($dnssec, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'dnssec', must be one of '%s'",
-                    $dnssec,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $dnssec = self::DNSSEC_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['dnssec'] = $dnssec;
 

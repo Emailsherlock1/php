@@ -47,7 +47,7 @@ final class ErrorFactory
                 $status,
                 $code,
                 creditsRequired: self::num($header('X-Credits-Required')),
-                creditsRemaining: self::num($header('X-Credits-Remaining')),
+                creditsRemaining: self::num($header('X-Probe-Credits-Remaining') ?? $header('X-Credits-Remaining')),
             ),
             429 => new RateLimitException(
                 $message,

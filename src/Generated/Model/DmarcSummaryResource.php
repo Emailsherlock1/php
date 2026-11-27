@@ -296,6 +296,7 @@ class DmarcSummaryResource implements ModelInterface, ArrayAccess, \JsonSerializ
 
     public const RANGE_DAYS_NUMBER_7 = 7;
     public const RANGE_DAYS_NUMBER_30 = 30;
+    public const RANGE_DAYS_UNKNOWN_DEFAULT_OPEN_API = 11184809;
 
     /**
      * Gets allowable values of the enum
@@ -307,6 +308,7 @@ class DmarcSummaryResource implements ModelInterface, ArrayAccess, \JsonSerializ
         return [
             self::RANGE_DAYS_NUMBER_7,
             self::RANGE_DAYS_NUMBER_30,
+            self::RANGE_DAYS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -468,13 +470,7 @@ class DmarcSummaryResource implements ModelInterface, ArrayAccess, \JsonSerializ
         }
         $allowedValues = $this->getRangeDaysAllowableValues();
         if (!in_array($range_days, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'range_days', must be one of '%s'",
-                    $range_days,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $range_days = self::RANGE_DAYS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['range_days'] = $range_days;
 

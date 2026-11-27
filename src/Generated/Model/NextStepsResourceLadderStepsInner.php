@@ -257,13 +257,16 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
     public const STAGE_ALIGN = 'align';
     public const STAGE_QUARANTINE = 'quarantine';
     public const STAGE_REJECT = 'reject';
+    public const STAGE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const STATE_DONE = 'done';
     public const STATE_CURRENT = 'current';
     public const STATE_OBSERVING = 'observing';
     public const STATE_NEXT = 'next';
     public const STATE_TODO = 'todo';
+    public const STATE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
     public const DNS_EDIT = 'edit';
     public const DNS_DONE = 'done';
+    public const DNS_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -278,6 +281,7 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
             self::STAGE_ALIGN,
             self::STAGE_QUARANTINE,
             self::STAGE_REJECT,
+            self::STAGE_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -294,6 +298,7 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
             self::STATE_OBSERVING,
             self::STATE_NEXT,
             self::STATE_TODO,
+            self::STATE_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -307,6 +312,7 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
         return [
             self::DNS_EDIT,
             self::DNS_DONE,
+            self::DNS_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -425,13 +431,7 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
         }
         $allowedValues = $this->getStageAllowableValues();
         if (!in_array($stage, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'stage', must be one of '%s'",
-                    $stage,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $stage = self::STAGE_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['stage'] = $stage;
 
@@ -462,13 +462,7 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
         }
         $allowedValues = $this->getStateAllowableValues();
         if (!in_array($state, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'state', must be one of '%s'",
-                    $state,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $state = self::STATE_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['state'] = $state;
 
@@ -560,13 +554,7 @@ class NextStepsResourceLadderStepsInner implements ModelInterface, ArrayAccess, 
         }
         $allowedValues = $this->getDnsAllowableValues();
         if (!is_null($dns) && !in_array($dns, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'dns', must be one of '%s'",
-                    $dns,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $dns = self::DNS_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['dns'] = $dns;
 

@@ -237,6 +237,7 @@ class BatchItemError implements ModelInterface, ArrayAccess, \JsonSerializable
     public const ERROR_INVALID_EMAIL = 'invalid_email';
     public const ERROR_INSUFFICIENT_CREDITS = 'insufficient_credits';
     public const ERROR_VERIFY_UNAVAILABLE = 'verify_unavailable';
+    public const ERROR_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -249,6 +250,7 @@ class BatchItemError implements ModelInterface, ArrayAccess, \JsonSerializable
             self::ERROR_INVALID_EMAIL,
             self::ERROR_INSUFFICIENT_CREDITS,
             self::ERROR_VERIFY_UNAVAILABLE,
+            self::ERROR_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -383,13 +385,7 @@ class BatchItemError implements ModelInterface, ArrayAccess, \JsonSerializable
         }
         $allowedValues = $this->getErrorAllowableValues();
         if (!in_array($error, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'error', must be one of '%s'",
-                    $error,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $error = self::ERROR_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['error'] = $error;
 

@@ -176,12 +176,24 @@ The result is a generated model; read fields with `get<Field>()` accessors:
 
 ## Credits and rate limits
 
-After every call:
+Two balances apply. Standard verify draws on your monthly validations, deep verify
+of catch-all and unknown addresses draws probe credits. After every call that
+reports them:
 
 ```php
-$es->creditsRemaining;  // e.g. 41.0
-$es->rateLimit;         // ['limit' => 60, 'remaining' => 59, 'reset' => 1700000000]
+$es->probeCreditsRemaining;  // e.g. 41.0
+$es->validationsRemaining;   // e.g. 950, or null on a paid plan (unlimited)
+$es->rateLimit;              // ['limit' => 60, 'remaining' => 59, 'reset' => 1700000000]
 ```
+
+`$es->creditsRemaining` still holds the probe-credit balance and is deprecated.
+
+## Enum values this version does not know
+
+When the API returns an enum value that is newer than your SDK version, the field
+reads `'unknown_default_open_api'` (each model has it as a
+`…_UNKNOWN_DEFAULT_OPEN_API` constant) and the rest of the response arrives as
+usual. Update the SDK to read the new value.
 
 ## Errors
 

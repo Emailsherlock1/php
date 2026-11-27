@@ -250,6 +250,7 @@ class DeliverabilityAddressResourceLatestVerdict implements ModelInterface, Arra
     public const VERDICT_BAND_INBOX_READY = 'inbox_ready';
     public const VERDICT_BAND_AT_RISK = 'at_risk';
     public const VERDICT_BAND_LIKELY_FILTERED = 'likely_filtered';
+    public const VERDICT_BAND_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -262,6 +263,7 @@ class DeliverabilityAddressResourceLatestVerdict implements ModelInterface, Arra
             self::VERDICT_BAND_INBOX_READY,
             self::VERDICT_BAND_AT_RISK,
             self::VERDICT_BAND_LIKELY_FILTERED,
+            self::VERDICT_BAND_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -415,13 +417,7 @@ class DeliverabilityAddressResourceLatestVerdict implements ModelInterface, Arra
         }
         $allowedValues = $this->getVerdictBandAllowableValues();
         if (!in_array($verdict_band, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'verdict_band', must be one of '%s'",
-                    $verdict_band,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $verdict_band = self::VERDICT_BAND_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['verdict_band'] = $verdict_band;
 

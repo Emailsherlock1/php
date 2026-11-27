@@ -243,6 +243,7 @@ class VerifySingleRequest implements ModelInterface, ArrayAccess, \JsonSerializa
     public const MODE_QUICK = 'quick';
     public const MODE_STANDARD = 'standard';
     public const MODE_ENHANCED = 'enhanced';
+    public const MODE_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -255,6 +256,7 @@ class VerifySingleRequest implements ModelInterface, ArrayAccess, \JsonSerializa
             self::MODE_QUICK,
             self::MODE_STANDARD,
             self::MODE_ENHANCED,
+            self::MODE_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -390,13 +392,7 @@ class VerifySingleRequest implements ModelInterface, ArrayAccess, \JsonSerializa
         }
         $allowedValues = $this->getModeAllowableValues();
         if (!is_null($mode) && !in_array($mode, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'mode', must be one of '%s'",
-                    $mode,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $mode = self::MODE_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['mode'] = $mode;
 

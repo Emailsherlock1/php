@@ -9,6 +9,7 @@ use Emailsherlock\Exception\AuthenticationException;
 use Emailsherlock\Exception\EmailsherlockException;
 use Emailsherlock\Exception\InsufficientCreditsException;
 use Emailsherlock\Exception\RateLimitException;
+use Emailsherlock\Generated\Model\VerifyResultResponse;
 use Emailsherlock\VerifyResource;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
@@ -126,6 +127,73 @@ final class ClientTest extends TestCase
             self::assertSame(1.0, $e->creditsRequired);
             self::assertSame(0.0, $e->creditsRemaining);
         }
+    }
+
+    public function testInsufficientCreditsPrefersProbeCreditsHeader(): void
+    {
+        $client = $this->client(
+            402,
+            ['error' => ['code' => 'insufficient_credits', 'message' => 'Not enough.']],
+            ['X-Probe-Credits-Remaining' => '2', 'X-Credits-Remaining' => '9'],
+        );
+        try {
+            $client->verify->single(['email' => 'a@b.com']);
+            self::fail('expected InsufficientCreditsException');
+        } catch (InsufficientCreditsException $e) {
+            self::assertSame(2.0, $e->creditsRemaining);
+        }
+    }
+
+    public function testReadsBothBalancesFromTheirCurrentHeaders(): void
+    {
+        // EM-4987: the alias X-Credits-Remaining is set to another value here on
+        // purpose, so the test fails if the client still reads the alias first.
+        $client = $this->client(200, self::WIRE, [
+            'X-Probe-Credits-Remaining' => '41',
+            'X-Credits-Remaining' => '7',
+            'X-Validations-Remaining' => '950',
+            'X-Verify-Free-Remaining' => '3',
+        ]);
+        $client->verify->single(['email' => 'jane@acme.com']);
+
+        self::assertSame(41.0, $client->probeCreditsRemaining);
+        self::assertSame(950, $client->validationsRemaining);
+        self::assertSame(41.0, $client->creditsRemaining);
+    }
+
+    public function testFallsBackToTheLegacyBalanceHeaders(): void
+    {
+        $client = $this->client(200, self::WIRE, [
+            'X-Credits-Remaining' => '12',
+            'X-Verify-Free-Remaining' => '30',
+        ]);
+        $client->verify->single(['email' => 'jane@acme.com']);
+
+        self::assertSame(12.0, $client->probeCreditsRemaining);
+        self::assertSame(30, $client->validationsRemaining);
+        self::assertSame(12.0, $client->creditsRemaining);
+    }
+
+    public function testValidationsStayNullWhenThePlanIsUnlimited(): void
+    {
+        $client = $this->client(200, self::WIRE, ['X-Probe-Credits-Remaining' => '41']);
+        $client->verify->single(['email' => 'jane@acme.com']);
+
+        self::assertNull($client->validationsRemaining);
+        self::assertSame(41.0, $client->probeCreditsRemaining);
+    }
+
+    public function testEnumValueTheSpecDoesNotListStillReturnsTheResponse(): void
+    {
+        // EM-4987: an enum value added on the API side used to throw
+        // InvalidArgumentException from the generated setter.
+        $client = $this->client(200, ['result' => 'quarantined', 'reason' => 'a_reason_added_later'] + self::WIRE);
+        $result = $client->verify->single(['email' => 'jane@acme.com']);
+
+        self::assertSame(VerifyResultResponse::RESULT_UNKNOWN_DEFAULT_OPEN_API, $result->getResult());
+        self::assertSame(VerifyResultResponse::REASON_UNKNOWN_DEFAULT_OPEN_API, $result->getReason());
+        self::assertSame('jane@acme.com', $result->getEmail());
+        self::assertSame(0.95, $result->getScore());
     }
 
     public function testRateLimitedCarriesRetryAfter(): void

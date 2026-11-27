@@ -250,6 +250,7 @@ class ImpersonationAnalyzeResponse implements ModelInterface, ArrayAccess, \Json
     public const RISK_LOW = 'low';
     public const RISK_MEDIUM = 'medium';
     public const RISK_HIGH = 'high';
+    public const RISK_UNKNOWN_DEFAULT_OPEN_API = 'unknown_default_open_api';
 
     /**
      * Gets allowable values of the enum
@@ -263,6 +264,7 @@ class ImpersonationAnalyzeResponse implements ModelInterface, ArrayAccess, \Json
             self::RISK_LOW,
             self::RISK_MEDIUM,
             self::RISK_HIGH,
+            self::RISK_UNKNOWN_DEFAULT_OPEN_API,
         ];
     }
 
@@ -379,13 +381,7 @@ class ImpersonationAnalyzeResponse implements ModelInterface, ArrayAccess, \Json
         }
         $allowedValues = $this->getRiskAllowableValues();
         if (!in_array($risk, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Invalid value '%s' for 'risk', must be one of '%s'",
-                    $risk,
-                    implode("', '", $allowedValues)
-                )
-            );
+            $risk = self::RISK_UNKNOWN_DEFAULT_OPEN_API;
         }
         $this->container['risk'] = $risk;
 
